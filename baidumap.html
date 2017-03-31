@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<style type="text/css">
+	body,html,#map {
+		width: 100%;
+		height: 100%;
+		overflow: hidden;
+		margin: 0;
+		font-family: "微软雅黑";
+	}
+	#movebutton{
+		background:#fff;position:absolute;
+		height:30px;width:200px;
+		top:50px;left:50px;
+	}
+	</style>
+	<title>百度地图综合展示</title>
+</head>
+<body>
+	<div id="map"></div>
+	<!-- <div id="movebutton">MOVE</div> -->
+</body>
+<script src="http://api.map.baidu.com/api?v=2.0&ak=lsprY6REossqVF54AV8KYX13"></script>
+<script type="text/javascript">
+	// 百度地图API功能
+	var map = new BMap.Map("map");    // 创建Map实例 
+	// 初始化地图,设置中心点坐标和地图级别
+	var point = new BMap.Point(121.470, 31.215);
+	map.centerAndZoom(point , 13);
+	map.addControl(new BMap.MapTypeControl());   //添加地图类型控件
+
+	//BMAP_NAVIGATION_CONTROL_LARGE 表示显示完整的平移缩放控件。
+	//BMAP_NAVIGATION_CONTROL_SMALL 表示显示小型的平移缩放控件。
+	//BMAP_NAVIGATION_CONTROL_PAN 表示只显示控件的平移部分功能。
+	//BMAP_NAVIGATION_CONTROL_ZOOM 表示只显示控件的缩放部分功能。 
+	var opts = {type: BMAP_NAVIGATION_CONTROL_LARGE}    
+    map.addControl(new BMap.NavigationControl(opts));
+	map.enableScrollWheelZoom(true);     //开启鼠标滚轮缩放
+
+
+	// 创建标注  
+	var marker = new BMap.Marker(point);          
+	map.addOverlay(marker);    // 将标注添加到地图中
+
+	function addMarker(point, index){  // 创建图标对象   
+		var myIcon = new BMap.Icon("marker.png", new BMap.Size(25, 25), {    
+		// 指定定位位置。   
+		// 当标注显示在地图上时，其所指向的地理位置距离图标左上    
+		// 角各偏移10像素和25像素。您可以看到在本例中该位置即是   
+		   // 图标中央下端的尖角位置。    
+		   offset: new BMap.Size(10, 25),    
+		   // 设置图片偏移。   
+		   // 当您需要从一幅较大的图片中截取某部分作为标注图标时，您   
+		   // 需要指定大图的偏移位置，此做法与css sprites技术类似。    
+		   imageOffset: new BMap.Size(0, 0 - index * 25)   // 设置图片偏移    
+		});      
+		// 创建标注对象并添加到地图   
+		var marker = new BMap.Marker(point, {icon: myIcon});    
+		map.addOverlay(marker);    
+	}  
+
+	addMarker(new BMap.Point(121.475, 31.220),0);  
+
+	//监听marker点击事件
+	marker.addEventListener("click", function(){    
+	    alert("您点击了标注");    
+	});
+
+	//marker拖拽
+	marker.enableDragging();    
+	marker.addEventListener("dragend", function(e){    
+	    alert("当前位置：" + e.point.lng + ", " + e.point.lat);    
+	});
+
+	//窗口
+	var opts = {    
+	    width : 50,     // 信息窗口宽度    
+	    height: 25,     // 信息窗口高度    
+	    title : "title"  // 信息窗口标题   
+	}    
+	var infoWindow = new BMap.InfoWindow("黄埔", opts);  // 创建信息窗口对象    
+	map.openInfoWindow(infoWindow, new BMap.Point(121.495, 31.240));      // 打开信息窗口
+
+	//画折线
+	var polyline = new BMap.Polyline([    
+		    new BMap.Point(121.400, 31.205),
+		    new BMap.Point(121.410, 31.220),    
+		    new BMap.Point(121.420, 31.265)    
+		],    
+		{strokeColor:"blue", strokeWeight:6, strokeOpacity:0.5}    
+	);    
+	map.addOverlay(polyline);
+
+	//map拖拽事件监听
+	map.addEventListener("dragend", function(){    
+	    var center = map.getCenter();    
+	    alert("地图中心点变更为：" + center.lng + ", " + center.lat);    
+	});
+
+	// //绑定解绑
+	// function showInfo(e){    
+	//     alert(e.point.lng + ", " + e.point.lat);    
+	//     map.removeEventListener("click", showInfo);    
+	// }    
+	// map.addEventListener("click", showInfo);
+
+	// 创建交通流量图层实例   
+	var traffic = new BMap.TrafficLayer();           
+	map.addTileLayer(traffic);                  
+
+	//搜索，地区
+	// var local = new BMap.LocalSearch("上海",   
+ //        {renderOptions: {map: map,autoViewport: true},pageCapacity: 8});      
+	// local.search("静安区");
+
+	//虹桥里的小吃
+	// var local = new BMap.LocalSearch(map,   
+ //        { renderOptions:{map: map, autoViewport: true}});      
+	// local.searchNearby("小吃","虹桥");
+
+	//矩形范围搜索将根据您提供的视野范围提供搜索结果。注意：当搜索范围过大时可能会出现无结果的情况。：     
+	// var local = new BMap.LocalSearch(map,   
+	//               { renderOptions:{map: map}});      
+	// local.searchInBounds("银行", map.getBounds());
+
+	
+</script>
+</html>
